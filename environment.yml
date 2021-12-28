@@ -1,0 +1,11 @@
+name: rps
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - pip=21.2.4
+  - python=3.9.7
+  - pytorch
+  - torchvision
+  - matplotlib
+  - jupyter
