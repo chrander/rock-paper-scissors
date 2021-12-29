@@ -9,3 +9,5 @@ dependencies:
   - torchvision
   - matplotlib
   - jupyter
+  - pip:
+    - opencv-python
