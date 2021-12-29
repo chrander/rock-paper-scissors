@@ -55,7 +55,11 @@ class RPSGame:
 
     def print_stats(self):
         print(f' .    Human record: {self.human_wins} wins, {self.machine_wins} losses, {self.draws} draws')
-        print(f'Winning percentage: {self.human_wins / (self.human_wins + self.machine_wins)}')
+        if self.rounds == 0:
+            winning_pct = 0.0
+        else:
+            winning_pct = self.human_wins / self.human_wins + self.machine_wins
+        print(f'Winning percentage: {winning_pct}')
 
     @staticmethod
     def determine_round_winner(choice1, choice2) -> int:
