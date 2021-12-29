@@ -18,15 +18,18 @@ class RPSGame:
         self.draws = 0
 
     def get_machine_choice(self) -> str:
+        """Gets the machine's rock/paper/scissors choice for a single round"""
         # Using a random strategy
         machine_choice = random.choice(class_names)
         return machine_choice
 
     def get_human_choice(self) -> str:
+        """Gets the human's rock/paper/scissors choice for a single round"""
         human_choice = get_choice_from_video()
         return human_choice
 
     def play_round(self):
+        """Plays a single rock, paper, scissors round"""
         self.rounds += 1
         logger.info(f'*****  Round {self.rounds} *****')
         machine_choice = self.get_machine_choice()
@@ -54,6 +57,7 @@ class RPSGame:
             return True
 
     def print_stats(self):
+        """Prints wins and winning percentages"""
         print(f' .    Human record: {self.human_wins} wins, {self.machine_wins} losses, {self.draws} draws')
         if self.rounds == 0:
             winning_pct = 0.0
