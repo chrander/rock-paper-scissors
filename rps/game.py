@@ -2,6 +2,7 @@ import random
 import logging
 
 from rps import class_names
+from rps import QUIT
 from rps.classify import get_choice_from_video
 
 
@@ -33,7 +34,7 @@ class RPSGame:
 
         result_str = f'  Human choice: {human_choice}. Machine Choice: {machine_choice}.'
 
-        if human_choice == 'QUIT':
+        if human_choice == QUIT:
             logger.info('Quitting')
 
             return False
