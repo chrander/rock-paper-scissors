@@ -4,20 +4,15 @@ import cv2
 import torch
 import torchvision.transforms as T
 
-from rps import class_names
-from rps import QUIT
+from rps import constants
 
-# Load the model
-models_dir = '/Users/chris/Documents/projects/rps/rock-paper-scissors/models'
-model_path = os.path.join(models_dir, 'model_2021-12-27_2057.pth')
 
-the_model = torch.load(model_path)
+# Load the model. TODO: make the path configurable instead of hard coded in constants
+the_model = torch.load(constants.model_path)
 the_model.eval()
 
+source = 0  # Index determining the source of the video
 
-source = 0
-font = cv2.FONT_HERSHEY_SIMPLEX
-font_color = (0, 255, 0)
 
 def process_frame(video_frame):
     height, width = video_frame.shape[:2]
@@ -43,29 +38,37 @@ def get_choice_from_video():
     while(True):
         # Capture the video frame by frame
         _, frame = cap.read()
+        img = frame.copy()  # Copy so that we don't return something with text on it
         height, _ = frame.shape[:2]
         tensor = process_frame(frame)
-    
+
         outputs = the_model(tensor)
         _, preds = torch.max(outputs, 1)
-        prediction = class_names[preds[0]]
-        
-        cv2.putText(frame, prediction, (10, height-10), font, 3, font_color, 2, cv2.LINE_AA)
+        prediction = constants.class_names[preds[0]]
+
+        cv2.putText(frame, f'Your choice: {prediction}', (10, 50), 
+                    constants.font, 
+                    constants.choice_font_scale, 
+                    constants.choice_font_color, 
+                    constants.choice_font_thickness, 
+                    constants.font_line_type)
+        cv2.putText(frame, 'Press SPACE to select choice, q to quit', (10, height-10), 
+                    constants.font, 1, constants.choice_font_color, 2, constants.font_line_type)
         # Display the resulting frame
         cv2.imshow('Rock, Paper, Scissors', frame)
-          
+
         key = cv2.waitKey(1) & 0xFF
-        if key == 32: 
+        if key == 32:
             # Press SPACE to end and return the current prediction
             value = prediction
             break
         elif key == ord('q'):
-            value = QUIT
+            value = constants.QUIT
             break
-            
+
     # Release the capture object
     cap.release()
     # Destroy all the windows
     cv2.destroyAllWindows()
 
-    return value
+    return img, value

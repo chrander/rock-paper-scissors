@@ -11,3 +11,4 @@ dependencies:
   - jupyter
   - pip:
     - opencv-python
+    - pytest-cov
