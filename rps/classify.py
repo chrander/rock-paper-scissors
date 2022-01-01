@@ -4,8 +4,7 @@ import cv2
 import torch
 import torchvision.transforms as T
 
-from rps import class_names
-from rps import QUIT
+from rps import QUIT, class_names
 
 # Load the model
 models_dir = '/Users/chris/Documents/projects/rps/rock-paper-scissors/models'
@@ -18,6 +17,7 @@ the_model.eval()
 source = 0
 font = cv2.FONT_HERSHEY_SIMPLEX
 font_color = (0, 255, 0)
+
 
 def process_frame(video_frame):
     height, width = video_frame.shape[:2]
@@ -45,24 +45,24 @@ def get_choice_from_video():
         _, frame = cap.read()
         height, _ = frame.shape[:2]
         tensor = process_frame(frame)
-    
+
         outputs = the_model(tensor)
         _, preds = torch.max(outputs, 1)
         prediction = class_names[preds[0]]
-        
-        cv2.putText(frame, prediction, (10, height-10), font, 3, font_color, 2, cv2.LINE_AA)
+
+        cv2.putText(frame, prediction, (10, height - 10), font, 3, font_color, 2, cv2.LINE_AA)
         # Display the resulting frame
         cv2.imshow('Rock, Paper, Scissors', frame)
-          
+
         key = cv2.waitKey(1) & 0xFF
-        if key == 32: 
+        if key == 32:
             # Press SPACE to end and return the current prediction
             value = prediction
             break
         elif key == ord('q'):
             value = QUIT
             break
-            
+
     # Release the capture object
     cap.release()
     # Destroy all the windows

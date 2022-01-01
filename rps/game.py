@@ -1,10 +1,8 @@
-import random
 import logging
+import random
 
-from rps import class_names
-from rps import QUIT
+from rps import QUIT, class_names
 from rps.classify import get_choice_from_video
-
 
 logger = logging.getLogger(__name__)
 
@@ -72,14 +70,14 @@ class RPSGame:
         # Make sure we have valid inputs
         if (choice1 not in class_names) or (choice2 not in class_names):
             raise ValueError(f'Unrecognized choice: {choice1} or {choice2}')
-        
+
         if choice1 == choice2:
             # Draw
             return 0
 
         if (choice1 == 'paper') and (choice2 == 'rock') \
-               or (choice1 == 'scissors') and (choice2 == 'paper') \
-               or (choice1 == 'rock') and (choice2 == 'scissors'):
+                or (choice1 == 'scissors') and (choice2 == 'paper') \
+                or (choice1 == 'rock') and (choice2 == 'scissors'):
             # Choice 1 wins
             return 1
 
