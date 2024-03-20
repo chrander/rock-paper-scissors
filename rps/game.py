@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import logging
 import random
 
@@ -5,37 +6,36 @@ import cv2
 
 from rps.classify import get_choice_from_video
 from rps import constants
+from rps.constants import Outcome, PlayerChoice
 
 
 logger = logging.getLogger(__name__)
 
 
-class RPSGame:
+class RPSRound:
 
-    def __init__(self) -> None:
-        self.rounds = 0
-        self.human_wins = 0
-        self.machine_wins = 0
-        self.draws = 0
+    def __init__(self, player1_name, player2_name) -> None:
+        self.player1_name = player1_name
+        self.player2_name = player2_name
 
-    def get_machine_choice(self) -> str:
+    def get_player2_choice(self) -> str:
         """Gets the machine's rock/paper/scissors choice for a single round"""
         # Using a random strategy
         machine_choice = random.choice(constants.class_names)
         return machine_choice
 
-    def get_human_choice(self) -> str:
+    def get_player1_choice(self) -> str:
         """Gets the human's rock/paper/scissors choice for a single round"""
         img, human_choice = get_choice_from_video()
         return img, human_choice
 
-    def play_round(self):
+    def play(self):
         """Plays a single rock, paper, scissors round"""
         logger.info(f'*****  Round {self.rounds} *****')
-        machine_choice = self.get_machine_choice()
-        img, human_choice = self.get_human_choice()
+        img, human_choice = self.get_player1_choice()
+        machine_choice = self.get_player2_choice()
 
-        result_str = f'  Human choice: {human_choice}. Machine Choice: {machine_choice}.'
+        result_str = f'  {self.player1_name} choice: {human_choice}. Machine Choice: {machine_choice}.'
 
         if human_choice == constants.QUIT:
             logger.info('Quitting')
@@ -43,12 +43,12 @@ class RPSGame:
 
         outcome_text = ''
         outcome = self.determine_round_winner(human_choice, machine_choice)
-        if outcome == constants.DRAW:
+        if outcome == Outcome.DRAW:
             self.draws += 1
             outcome_text = 'DRAW'
             outcome_font_color = constants.outcome_font_color_draw
             logger.info(f'{result_str} Draw!')
-        elif outcome == constants.WIN:
+        elif outcome == Outcome.WIN:
             self.human_wins += 1
             outcome_text = 'YOU WIN!'
             outcome_font_color = constants.outcome_font_color_win
@@ -121,14 +121,22 @@ class RPSGame:
 
         if choice1 == choice2:
             # Draw
-            return constants.DRAW
+            return Outcome.DRAW
 
-        if (choice1 == 'paper') and (choice2 == 'rock') \
-                or (choice1 == 'scissors') and (choice2 == 'paper') \
-                or (choice1 == 'rock') and (choice2 == 'scissors'):
+        if (choice1 == PlayerChoice.PAPER) and (choice2 == PlayerChoice.ROCK) \
+                or (choice1 == PlayerChoice.SCISSORS) and (choice2 == PlayerChoice.PAPER) \
+                or (choice1 == PlayerChoice.ROCK) and (choice2 == PlayerChoice.SCISSORS):
             # Choice 1 wins
-            return constants.WIN
+            return Outcome.WIN
 
         else:
             # Choice 2 wins (should be the only other valid options)
-            return constants.LOSS
+            return Outcome.LOSS
+
+@dataclass
+class RoundResult:
+    player1_name: str
+    player2_name: str
+    player1_choice: PlayerChoice
+    player2_choice: PlayerChoice
+    outcome: str

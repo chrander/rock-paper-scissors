@@ -1,6 +1,9 @@
 import os
+from enum import Enum
 
 import cv2
+
+CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
 # Drawing and text
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -15,14 +18,20 @@ outcome_font_scale = 5
 outcome_font_thickness = 14
 
 # Game mechanics
-WIN = 1
-DRAW = 0
-LOSS = -1
+class Outcome(Enum):
+    WIN = 1
+    DRAW = 0
+    LOSS = -1
+
+class PlayerChoice(Enum):
+    ROCK = 0
+    PAPER = 1
+    SCISSORS = 2
 
 # String constants
-QUIT = 'QUIT'
+QUIT = "QUIT"
 
 # Models
-class_names = ['paper', 'rock', 'scissors']
-models_dir = '/Users/chris/Documents/projects/rps/rock-paper-scissors/models'
-model_path = os.path.join(models_dir, 'model_2021-12-27_2057.pth')
+class_names = [PlayerChoice.ROCK, PlayerChoice.PAPER, PlayerChoice.SCISSORS]
+models_dir = os.path.join(CURRENT_DIR, "..", "models")
+model_path = os.path.join(models_dir, "model_2021-12-27_2057.pth")
