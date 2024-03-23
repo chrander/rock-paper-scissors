@@ -1,6 +1,7 @@
 import os
 
 import cv2
+import numpy as np
 import torch
 import torchvision.transforms as T
 
@@ -14,7 +15,7 @@ the_model.eval()
 source = 0  # Index determining the source of the video
 
 
-def process_frame(video_frame):
+def process_frame(video_frame: np.array) -> torch.tensor:
     height, width = video_frame.shape[:2]
     img = video_frame.copy()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -31,7 +32,7 @@ def process_frame(video_frame):
     return tensor
 
 
-def get_choice_from_video():
+def get_choice_from_video() -> tuple[np.array, str]:
     """Gets a human rock, paper, scissors choice from a video frame"""
     cap = cv2.VideoCapture(source)
 
@@ -46,7 +47,7 @@ def get_choice_from_video():
         _, preds = torch.max(outputs, 1)
         prediction = constants.class_names[preds[0]]
 
-        cv2.putText(frame, f'Your choice: {prediction}', (10, 50), 
+        cv2.putText(frame, f'Your choice: {prediction.name}', (10, 50), 
                     constants.font, 
                     constants.choice_font_scale, 
                     constants.choice_font_color, 

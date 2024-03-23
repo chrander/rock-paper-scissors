@@ -24,14 +24,14 @@ class Outcome(Enum):
     LOSS = -1
 
 class PlayerChoice(Enum):
-    ROCK = 0
-    PAPER = 1
+    PAPER = 0
+    ROCK = 1
     SCISSORS = 2
 
 # String constants
 QUIT = "QUIT"
 
 # Models
-class_names = [PlayerChoice.ROCK, PlayerChoice.PAPER, PlayerChoice.SCISSORS]
+class_names = [PlayerChoice.PAPER, PlayerChoice.ROCK, PlayerChoice.SCISSORS]
 models_dir = os.path.join(CURRENT_DIR, "..", "models")
 model_path = os.path.join(models_dir, "model_2021-12-27_2057.pth")
