@@ -17,21 +17,11 @@ outcome_font_color_draw = (200, 200, 200)
 outcome_font_scale = 5
 outcome_font_thickness = 14
 
-# Game mechanics
-class Outcome(Enum):
-    WIN = 1
-    DRAW = 0
-    LOSS = -1
 
-class PlayerChoice(Enum):
-    PAPER = 0
-    ROCK = 1
-    SCISSORS = 2
 
 # String constants
 QUIT = "QUIT"
 
 # Models
-class_names = [PlayerChoice.PAPER, PlayerChoice.ROCK, PlayerChoice.SCISSORS]
 models_dir = os.path.join(CURRENT_DIR, "..", "models")
 model_path = os.path.join(models_dir, "model_2021-12-27_2057.pth")
