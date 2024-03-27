@@ -63,4 +63,4 @@ models_dir = os.path.join(CURRENT_DIR, "..", "models")
 model_path = os.path.join(models_dir, "model_2021-12-27_2057.pth")
 
 # Database
-DATABASE_PATH = os.path.join(CURRENT_DIR, "..", "rps.db")
+DATABASE_URI = os.path.join("sqlite:///rps.db")

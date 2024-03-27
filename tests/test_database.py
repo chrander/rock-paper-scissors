@@ -40,7 +40,7 @@ def test_database_client(db_path: str) -> None:
 
 if __name__ == "__main__":
     db_uri= "sqlite:///test.db"
-    db_path = "./test.db"
+    db_path = "test.db"
     if os.path.isfile(db_path):
         logger.debug(f"Deleting file: {db_path}")
         os.remove(db_path)

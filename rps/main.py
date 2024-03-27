@@ -2,8 +2,15 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import ColumnDataSource, Slider, TextInput
+from bokeh.models import ColumnDataSource, Slider, TextInput, NumericInput
 from bokeh.plotting import figure
+
+from rps.database.client import DatabaseClient
+from rps.constants import DATABASE_URI
+
+
+# Database client
+db_client = DatabaseClient(database_uri=DATABASE_URI)
 
 # Set up data
 N = 200
@@ -21,6 +28,7 @@ plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
 
 # Set up widgets
+game_id_input = NumericInput(title="Game ID", value=1)
 text = TextInput(title="title", value='my sine wave')
 offset = Slider(title="offset", value=0.0, start=-5.0, end=5.0, step=0.1)
 amplitude = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1)
@@ -37,10 +45,12 @@ text.on_change('value', update_title)
 def update_data(attrname, old, new):
 
     # Get the current slider values
-    a = amplitude.value
-    b = offset.value
-    w = phase.value
-    k = freq.value
+    game_id = game_id_input.value
+    # a = amplitude.value
+    # b = offset.value
+    # w = phase.value
+    # k = freq.value
+    rounds = db_client.select_rounds_by_game_id(game_id)
 
     # Generate the new curve
     x = np.linspace(0, 4*np.pi, N)

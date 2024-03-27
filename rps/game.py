@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from datetime import datetime
 import logging
 import random
 
@@ -7,6 +9,8 @@ import numpy as np
 from rps.classify import get_choice_from_video
 from rps import constants
 from rps.constants import Player, PlayerChoice, PlayerType, PlayerStrategy, RoundOutcome
+from rps.database.client import DatabaseClient
+from rps.database.models import Game, Round
 
 
 logger = logging.getLogger(__name__)
@@ -65,6 +69,18 @@ class RPSGame:
         self.player1_wins = 0
         self.player2_wins = 0
         self.draws = 0
+        self.db_client = DatabaseClient(constants.DATABASE_URI)
+
+        self.db_game = Game(
+            player1_name=player1.name, 
+            player1_type=player1.type.name,
+            player1_strategy=player1.strategy.name,
+            player2_name=player1.name, 
+            player2_type=player1.type.name,
+            player2_strategy=player1.strategy.name
+        )
+        self.db_client.insert_game(self.db_game)
+        logger.info(f"Game ID: {self.db_game.game_id}")
 
     def get_player_choice(self, player: Player) -> tuple[str, PlayerChoice]:
         """Gets the rock/paper/scissors choice for a player"""
@@ -114,8 +130,17 @@ class RPSGame:
             # Use player 2's image
             img = img2
 
-        # Create a new round object. Also determines the outcome
+        # Create a new round object. Also determines the outcome.
         game_round = RPSRound(self.player1, self.player2, player1_choice, player2_choice)
+
+        # Add round to database
+        db_round = Round(
+            timestamp=datetime.now(),
+            player1_choice=player1_choice.name,
+            player2_choice=player2_choice.name,
+            outcome=game_round.outcome.name
+        )
+        self.db_client.add_round_to_game(self.db_game, db_round)
 
         # Display the round outcome on the image
         self.display_round_outcome(img, game_round) 
@@ -201,3 +226,17 @@ class RPSGame:
             decisive_rounds = self.player1_wins + self.player2_wins
             player_1_winning_pct = self.player1_wins / decisive_rounds
         print(f" {self.player1.name} Winning percentage: {player_1_winning_pct:.3f}")
+
+
+@dataclass
+class RPSStats:
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
+    outcomes: list[RoundOutcome] = []
+    winning_pcts: list[float] = []
+    player1_choices: list[PlayerChoice] = []
+    player2_choices: list[PlayerChoice]
+
+
+#TODO: Consider keeping game stats in the game object

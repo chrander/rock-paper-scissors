@@ -31,19 +31,11 @@ class Game(Base):
         return f"Game(id={self.game_id!r}, player1_name={self.player1_name!r}, player2_name={self.player2_name!r})"
 
 
-# class RPSRound:
-#     round_id: int
-#     round_timestamp: datetime
-#     game_id: int
-#     player1_choice: str
-#     player2_choice: str
-#     outcome: str
-
 class Round(Base):
     __tablename__ = "rounds"
 
     round_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     player1_choice: Mapped[str] = mapped_column(String)
     player2_choice: Mapped[str] = mapped_column(String)
     outcome: Mapped[str] = mapped_column(String)
