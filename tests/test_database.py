@@ -2,20 +2,17 @@ from datetime import datetime
 import logging
 import os
 
-from rps.database import DatabaseClient
-from rps.constants import RPSGame, RPSRound 
+from rps.database.client import DatabaseClient
+from rps.database.models import Game, Round
 
 
 logger = logging.getLogger(__name__)
 
 def test_database_client(db_path: str) -> None:
-    client = DatabaseClient(connection_string=db_path)
-    client.drop_tables()
+    client = DatabaseClient(database_uri=db_path)
     client.create_tables()
 
-    rps_game = RPSGame(
-        game_id=1,
-        game_timestamp=datetime.now(),
+    rps_game = Game(
         player1_name="player1", 
         player1_type="HUMAN", 
         player1_strategy="HUMAN",
@@ -24,29 +21,28 @@ def test_database_client(db_path: str) -> None:
         player2_strategy="RANDOM"
     )
 
-    rps_round = RPSRound(
-        round_id=1,
+    rps_round = Round(
         game_id=1,
-        round_timestamp=datetime.now(),
+        timestamp=datetime.now(),
         player1_choice="ROCK",
         player2_choice="SCISSORS",
         outcome="WIN"
     )
 
-    client.insert_game(rps_game)
-    client.insert_round(rps_round)
+    client.insert_artifact(rps_game)
+    client.add_round_to_game(rps_round, 1)
     games = client.select_all_games()
     rounds = client.select_all_rounds()
-    client.close()
 
     logger.debug(f"Games: {games}")
     logger.debug(f"Rounds: {rounds}")
 
 
 if __name__ == "__main__":
+    db_uri= "sqlite:///test.db"
     db_path = "./test.db"
-    # if os.path.isfile(db_path):
-    #     logger.debug(f"Deleting file: {db_path}")
-    #     os.remove(db_path)
+    if os.path.isfile(db_path):
+        logger.debug(f"Deleting file: {db_path}")
+        os.remove(db_path)
     
-    test_database_client(db_path)
+    test_database_client(db_uri)

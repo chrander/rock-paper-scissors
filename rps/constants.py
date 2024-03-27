@@ -52,28 +52,6 @@ class Player:
     strategy: PlayerStrategy = PlayerStrategy.HUMAN
 
 
-@dataclass
-class RPSGame:
-    game_id: int
-    game_timestamp: datetime
-    player1_name: str
-    player1_type: str
-    player1_strategy: str
-    player2_name: str
-    player2_type: str
-    player2_strategy: str
-
-
-@dataclass
-class RPSRound:
-    round_id: int
-    round_timestamp: datetime
-    game_id: int
-    player1_choice: str
-    player2_choice: str
-    outcome: str
-
-
 # Order of this list is important--must match model prediction outputs
 PLAYER_CHOICES = [PlayerChoice.PAPER, PlayerChoice.ROCK, PlayerChoice.SCISSORS]
 
