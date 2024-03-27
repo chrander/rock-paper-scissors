@@ -45,7 +45,7 @@ def get_choice_from_video() -> tuple[np.array, str]:
 
         outputs = the_model(tensor)
         _, preds = torch.max(outputs, 1)
-        prediction = constants.class_names[preds[0]]
+        prediction = constants.PLAYER_CHOICES[preds[0]]
 
         cv2.putText(frame, f'Your choice: {prediction.name}', (10, 50), 
                     constants.font, 

@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-from enum import Enum
 import logging
 import random
 
@@ -8,42 +6,10 @@ import numpy as np
 
 from rps.classify import get_choice_from_video
 from rps import constants
+from rps.constants import Player, PlayerChoice, PlayerType, PlayerStrategy, RoundOutcome
 
 
 logger = logging.getLogger(__name__)
-
-
-class RoundOutcome(Enum):
-    """Outcomes for a round"""
-    WIN = 1
-    DRAW = 0
-    LOSS = -1
-
-class PlayerChoice(Enum):
-    """Player choices"""
-    PAPER = 0
-    ROCK = 1
-    SCISSORS = 2
-
-class PlayerType(Enum):
-    """Type of player"""
-    HUMAN = "HUMAN"
-    MACHINE = "MACHINE"
-
-
-class PlayerStrategy(Enum):
-    """Strategy used by the player (mostly useful for machine players)"""
-    HUMAN = "HUMAN"
-    RANDOM = "RANDOM"
-    LEARN = "LEARN"
-
-
-@dataclass
-class Player:
-    """Class for storing Player information"""
-    name: str
-    type: PlayerType
-    strategy: PlayerStrategy = PlayerStrategy.HUMAN
 
 
 class RPSRound:
@@ -110,7 +76,7 @@ class RPSGame:
                 # Use a random strategy--no image output for machine, so
                 # use "None" as the image component of the choice
                 img = None
-                player_choice = random.choice(constants.class_names)
+                player_choice = random.choice(constants.PLAYER_CHOICES)
 
             else:
                 # Use a learning strategy
@@ -235,12 +201,3 @@ class RPSGame:
             decisive_rounds = self.player1_wins + self.player2_wins
             player_1_winning_pct = self.player1_wins / decisive_rounds
         print(f" {self.player1.name} Winning percentage: {player_1_winning_pct:.3f}")
-
-
-@dataclass
-class RoundResult:
-    player1_name: str
-    player2_name: str
-    player1_choice: PlayerChoice
-    player2_choice: PlayerChoice
-    outcome: str
