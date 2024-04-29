@@ -54,4 +54,4 @@ game_id_input.on_change('value', update_data)
 inputs = column(game_id_input)
 
 curdoc().add_root(row(inputs, plot, width=1200))
-curdoc().title = "Sliders"
+curdoc().title = "Rock, Paper, Scissors Outcomes"

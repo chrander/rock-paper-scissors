@@ -3,7 +3,7 @@ from typing import Union
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from rps.constants import DATABASE_URI
+from rps.constants import DATABASE_URI, Player, RoundOutcome
 from rps.database.models import Base, Game, Round
 
 
@@ -27,6 +27,11 @@ class DatabaseClient:
     def insert_game(self, game: Game) -> None:
         self.session.add(game)
         self.session.commit()
+
+    def select_game(self, game_id: int) -> Game:
+        statement = select(Game).where(Game.game_id == game_id)
+        result = self.session.scalars(statement).one()
+        return result
     
     def select_all_games(self) -> list:
         statement = select(Game)
@@ -52,3 +57,5 @@ class DatabaseClient:
     def add_round_to_game(self, game: Game, round: Round) -> None:
         game.rounds.append(round)
         self.session.commit()
+
+

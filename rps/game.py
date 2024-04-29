@@ -226,17 +226,3 @@ class RPSGame:
             decisive_rounds = self.player1_wins + self.player2_wins
             player_1_winning_pct = self.player1_wins / decisive_rounds
         print(f" {self.player1.name} Winning percentage: {player_1_winning_pct:.3f}")
-
-
-@dataclass
-class RPSStats:
-    wins: int = 0
-    draws: int = 0
-    losses: int = 0
-    outcomes: list[RoundOutcome] = []
-    winning_pcts: list[float] = []
-    player1_choices: list[PlayerChoice] = []
-    player2_choices: list[PlayerChoice]
-
-
-#TODO: Consider keeping game stats in the game object
