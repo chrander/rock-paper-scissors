@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 import logging
 import random
@@ -10,7 +9,7 @@ from rps.classify import get_choice_from_video
 from rps import constants
 from rps.constants import Player, PlayerChoice, PlayerType, PlayerStrategy, RoundOutcome
 from rps.database.client import DatabaseClient
-from rps.database.models import Game, Round
+from rps.database.models import Game, Round, GameStats
 
 
 logger = logging.getLogger(__name__)
@@ -77,7 +76,7 @@ class RPSGame:
             player1_strategy=player1.strategy.name,
             player2_name=player1.name, 
             player2_type=player1.type.name,
-            player2_strategy=player1.strategy.name
+            player2_strategy=player1.strategy.name,
         )
         self.db_client.insert_game(self.db_game)
         logger.info(f"Game ID: {self.db_game.game_id}")
