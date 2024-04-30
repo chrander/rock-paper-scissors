@@ -7,6 +7,10 @@ import cv2
 
 CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
+# Image properties 
+WINDOW_NAME = "Rock, Paper, Scissors"
+IMAGE_SIZE = (int(1280*3), int(720*3))  # MacBook Air
+
 # Drawing and text
 font = cv2.FONT_HERSHEY_SIMPLEX
 font_line_type = cv2.LINE_AA
@@ -16,7 +20,7 @@ choice_font_thickness = 3
 outcome_font_color_win = (0, 255, 0)
 outcome_font_color_lose = (0, 0, 255)
 outcome_font_color_draw = (255, 50, 50)
-outcome_font_scale = 5
+outcome_font_scale = 4.5
 outcome_font_thickness = 14
 
 class RoundOutcome(Enum):

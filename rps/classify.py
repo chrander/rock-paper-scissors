@@ -39,6 +39,10 @@ def get_choice_from_video() -> tuple[np.array, str]:
     while(True):
         # Capture the video frame by frame
         _, frame = cap.read()
+
+        # Resize to appropriate dimensions
+        # frame = cv2.resize(frame, constants.IMAGE_SIZE)
+
         img = frame.copy()  # Copy so that we don't return something with text on it
         height, _ = frame.shape[:2]
         tensor = process_frame(frame)
@@ -56,7 +60,9 @@ def get_choice_from_video() -> tuple[np.array, str]:
         cv2.putText(frame, 'Press SPACE to select choice, q to quit', (10, height-10), 
                     constants.font, 1, constants.choice_font_color, 2, constants.font_line_type)
         # Display the resulting frame
-        cv2.imshow('Rock, Paper, Scissors', frame)
+        # cv2.namedWindow(constants.WINDOW_NAME, cv2.WINDOW_FULLSCREEN)
+        # frame = cv2.resize(frame, constants.IMAGE_SIZE, interpolation=cv2.INTER_LINEAR)
+        cv2.imshow(constants.WINDOW_NAME, frame)
 
         key = cv2.waitKey(1) & 0xFF
         if key == 32:

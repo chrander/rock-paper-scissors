@@ -23,7 +23,9 @@ def get_data(game_id: int) -> pd.DataFrame:
     win_pct_df["win_pct"] = win_pct_df.win_count / (win_pct_df.win_count + win_pct_df.loss_count)
     win_pct_df["round"] = np.arange(len(win_pct_df)) + 1
 
-    outcome_df = pd.read_sql(f"SELECT win_count, loss_count, draw_count FROM game_stats WHERE game_id = {game_id}",
+    outcome_df = pd.read_sql("SELECT win_count, loss_count, draw_count, "
+                             "win_count+loss_count+draw_count AS games_count "
+                             f"FROM game_stats WHERE game_id = {game_id}",
                              con=db_client.engine)
     outcome_df["x"] = 0
     outcome_df["y"] = 0
@@ -68,8 +70,6 @@ wp_plot.title.align = "center"
 wp_plot.title.text_color = "navy"
 wp_plot.title.text_font_size = "28pt"
 
-
-
 figure_args = {
     "height": 400,
     "width": 400,
@@ -85,6 +85,9 @@ text_args = {
     "text_font_style": "bold"
 }
 
+games_plot = figure(title="Games", **figure_args)
+games_plot.text(text="games_count", text_color="black", **text_args)
+
 wins_plot = figure(title="Human Wins", **figure_args)
 wins_plot.text(text="win_count", text_color="green", **text_args)
 
@@ -94,7 +97,7 @@ losses_plot.text(text="loss_count", text_color="red", **text_args)
 draws_plot = figure(title="Draws", **figure_args)
 draws_plot.text(text="draw_count", text_color="blue", **text_args)
 
-for p in [wins_plot, losses_plot, draws_plot]:
+for p in [games_plot, wins_plot, losses_plot, draws_plot]:
     p.xaxis.visible = False
     p.yaxis.visible = False
     p.xgrid.visible = False
@@ -113,10 +116,6 @@ def update_data_on_game_id_change(attrname, old, new) -> None:
 def update_data() -> None:
     # Get the current Game ID values
     win_pct_df, outcome_df = get_data(game_id_input.value)
-    # source.data = dict(
-    #     x=list(range(1, len(df))),
-    #     y=df.win_pct.tolist()
-    # )
     win_pct_source.data = win_pct_df
     outcome_source.data = outcome_df
     logger.debug("Updated data")
@@ -129,7 +128,7 @@ game_id_input.on_change('value', update_data_on_game_id_change)
 # Set up layouts and add to document
 inputs_col = column(game_id_input)
 win_pct_row = row(wp_plot)
-outcome_row = row(wins_plot, losses_plot, draws_plot)
+outcome_row = row(games_plot, wins_plot, losses_plot, draws_plot)
 plot_col = column(outcome_row, win_pct_row)
 final_row = row(inputs_col, plot_col) 
 

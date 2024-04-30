@@ -157,7 +157,7 @@ class RPSGame:
             return True
 
     def display_round_outcome(self, img: np.array, game_round: RPSRound) -> None:
-        result_str = (f" {self.player1.name} choice: {game_round.player1_choice.name}.",
+        result_str = (f" {self.player1.name} choice: {game_round.player1_choice.name}."
                       f" {self.player2.name} choice: {game_round.player2_choice.name}.")
         outcome_text = ""
         if game_round.outcome == RoundOutcome.DRAW:
@@ -175,7 +175,7 @@ class RPSGame:
         else:
             # Loss for player 1
             self.player2_wins += 1
-            outcome_text = "YOU LOSE!"
+            outcome_text = "COMPUTER WINS!"
             outcome_font_color = constants.outcome_font_color_lose
             logger.info(f"{result_str} {game_round.player2.name} Wins!")
 
@@ -214,7 +214,8 @@ class RPSGame:
                         constants.font_line_type)
             cv2.putText(img, "Press any key to play again, q to quit", (10, height-10), 
                         constants.font, 1, constants.choice_font_color, 2, constants.font_line_type)
-            cv2.imshow("Rock, Paper, Scissors", img)
+            # img = cv2.resize(img, constants.IMAGE_SIZE, interpolation=cv2.INTER_LINEAR)
+            cv2.imshow(constants.WINDOW_NAME, img)
 
     def print_stats(self) -> None:
         """Prints wins and winning percentages"""
