@@ -9,7 +9,7 @@ from rps.classify import get_choice_from_video
 from rps import constants
 from rps.constants import Player, PlayerChoice, PlayerType, PlayerStrategy, RoundOutcome
 from rps.database.client import DatabaseClient
-from rps.database.models import Game, Round, GameStats
+from rps.database.models import Game, Round
 
 
 logger = logging.getLogger(__name__)
@@ -17,18 +17,18 @@ logger = logging.getLogger(__name__)
 
 class RPSRound:
     def __init__(
-            self, 
-            player1: Player, 
-            player2: Player, 
+            self,
+            player1: Player,
+            player2: Player,
             player1_choice: PlayerChoice,
             player2_choice: PlayerChoice
-        ) -> None:
+    ) -> None:
         self.player1 = player1
         self.player2 = player2
         self.player1_choice = player1_choice
         self.player2_choice = player2_choice
         self.outcome = self.determine_round_winner(player1_choice, player2_choice)
-        
+
     @staticmethod
     def determine_round_winner(choice1: PlayerChoice, choice2: PlayerChoice) -> RoundOutcome:
         """Determines the result of one round from player 1's perspective
@@ -59,9 +59,10 @@ class RPSRound:
             # Choice 2 wins (should be the only other valid options)
             return RoundOutcome.LOSS
 
+
 class RPSGame:
 
-    def __init__(self, player1: Player, player2: Player) -> None:
+    def __init__(self, player1: Player, player2: Player, game_id: int = None) -> None:
         self.player1 = player1
         self.player2 = player2
         self.rounds_played = 0
@@ -70,15 +71,18 @@ class RPSGame:
         self.draws = 0
         self.db_client = DatabaseClient(constants.DATABASE_URI)
 
-        self.db_game = Game(
-            player1_name=player1.name, 
-            player1_type=player1.type.name,
-            player1_strategy=player1.strategy.name,
-            player2_name=player1.name, 
-            player2_type=player1.type.name,
-            player2_strategy=player1.strategy.name,
-        )
-        self.db_client.insert_game(self.db_game)
+        if game_id is None:
+            self.db_game = Game(
+                player1_name=player1.name,
+                player1_type=player1.type.name,
+                player1_strategy=player1.strategy.name,
+                player2_name=player1.name,
+                player2_type=player1.type.name,
+                player2_strategy=player1.strategy.name
+            )
+            self.db_client.insert_game(self.db_game)
+        else:
+            self.db_game = self.db_client.select_game(game_id)
         logger.info(f"Game ID: {self.db_game.game_id}")
 
     def get_player_choice(self, player: Player) -> tuple[str, PlayerChoice]:
@@ -103,7 +107,7 @@ class RPSGame:
 
     def play_round(self) -> bool:
         """Plays a single RPS round
-        
+
         Returns
         -------
         bool
@@ -142,8 +146,8 @@ class RPSGame:
         self.db_client.add_round_to_game(self.db_game, db_round)
 
         # Display the round outcome on the image
-        self.display_round_outcome(img, game_round) 
-        
+        self.display_round_outcome(img, game_round)
+
         # Print stats
         self.print_stats()
 
@@ -183,9 +187,9 @@ class RPSGame:
 
         # These lines allow us to center the outcome text horizontally
         # get boundary of the outcome text
-        outcome_text_size = cv2.getTextSize(outcome_text, 
-                                            constants.font, 
-                                            constants.outcome_font_scale, 
+        outcome_text_size = cv2.getTextSize(outcome_text,
+                                            constants.font,
+                                            constants.outcome_font_scale,
                                             constants.outcome_font_thickness)[0]
         # get coords based on boundary
         outcome_textX = int((img.shape[1] - outcome_text_size[0]) / 2)
@@ -194,32 +198,35 @@ class RPSGame:
         if img is not None:
             height, width = img.shape[:2]
             logger.debug(f"Img shape: {height}, {width}")
-            cv2.putText(img, f"{self.player1.name} choice: {game_round.player1_choice.name}", (10, 50), 
-                        constants.font, 
-                        constants.choice_font_scale, 
-                        constants.choice_font_color, 
-                        constants.choice_font_thickness, 
+            cv2.putText(img, f"{self.player1.name} choice: {game_round.player1_choice.name}",
+                        (10, 50),
+                        constants.font,
+                        constants.choice_font_scale,
+                        constants.choice_font_color,
+                        constants.choice_font_thickness,
                         constants.font_line_type)
-            cv2.putText(img, f"{self.player2.name} choice: {game_round.player2_choice.name}", (10, 120), 
-                        constants.font, 
-                        constants.choice_font_scale, 
-                        constants.choice_font_color, 
-                        constants.choice_font_thickness, 
+            cv2.putText(img, f"{self.player2.name} choice: {game_round.player2_choice.name}",
+                        (10, 120),
+                        constants.font,
+                        constants.choice_font_scale,
+                        constants.choice_font_color,
+                        constants.choice_font_thickness,
                         constants.font_line_type)
-            cv2.putText(img, outcome_text, (outcome_textX, height - 100), 
-                        constants.font, 
-                        constants.outcome_font_scale, 
-                        outcome_font_color, 
-                        constants.outcome_font_thickness, 
+            cv2.putText(img, outcome_text, (outcome_textX, height - 100),
+                        constants.font,
+                        constants.outcome_font_scale,
+                        outcome_font_color,
+                        constants.outcome_font_thickness,
                         constants.font_line_type)
-            cv2.putText(img, "Press any key to play again, q to quit", (10, height-10), 
+            cv2.putText(img, "Press any key to play again, q to quit", (10, height-10),
                         constants.font, 1, constants.choice_font_color, 2, constants.font_line_type)
-            # img = cv2.resize(img, constants.IMAGE_SIZE, interpolation=cv2.INTER_LINEAR)
+            img = cv2.resize(img, constants.IMAGE_SIZE, interpolation=cv2.INTER_LINEAR)
             cv2.imshow(constants.WINDOW_NAME, img)
 
     def print_stats(self) -> None:
         """Prints wins and winning percentages"""
-        print(f" {self.player1.name} record: {self.player1_wins} wins, {self.player2_wins} losses, {self.draws} draws")
+        print(f" {self.player1.name} record: {self.player1_wins} wins, "
+              f"{self.player2_wins} losses, {self.draws} draws")
         if self.player1_wins == 0:
             player_1_winning_pct = 0.0
         else:

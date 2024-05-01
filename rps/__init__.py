@@ -3,5 +3,6 @@ import logging
 import rps
 
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(rps.__name__)
-logger = logging.basicConfig(level=logging.DEBUG)
+logger.setLevel(logging.DEBUG)

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 import os
 from enum import Enum
 
@@ -7,9 +6,13 @@ import cv2
 
 CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
-# Image properties 
+# Game properties
+game_id = 7
+
+# Image properties
 WINDOW_NAME = "Rock, Paper, Scissors"
-IMAGE_SIZE = (int(1280*3), int(720*3))  # MacBook Air
+# IMAGE_SIZE = (int(1280*3), int(720*3))
+IMAGE_SIZE = (int(1920*2), int(1080*2))
 VIDEO_SOURCE = 0  # 0: built-in camera; 1: webcam
 
 # Drawing and text
@@ -24,11 +27,13 @@ outcome_font_color_draw = (255, 50, 50)
 outcome_font_scale = 4.5
 outcome_font_thickness = 14
 
+
 class RoundOutcome(Enum):
     """Outcomes for a round"""
     WIN = 1
     DRAW = 0
     LOSS = -1
+
 
 class PlayerChoice(Enum):
     """Player choices"""
@@ -49,6 +54,7 @@ class PlayerStrategy(Enum):
     RANDOM = "RANDOM"
     LEARN = "LEARN"
 
+
 @dataclass
 class Player:
     """Class for storing Player information"""
@@ -65,7 +71,8 @@ QUIT = "QUIT"
 
 # Models
 models_dir = os.path.join(CURRENT_DIR, "..", "models")
-model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
+# model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
+model_path = os.path.join(models_dir, "best.pt")
 
 # Database
 DATABASE_URI = os.path.join("sqlite:///rps.db")

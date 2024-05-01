@@ -1,9 +1,10 @@
 from rps.game import RPSGame, Player, PlayerType, PlayerStrategy
+from rps.constants import game_id
 
 
 def play(player1, player2) -> None:
 
-    game = RPSGame(player1, player2)
+    game = RPSGame(player1, player2, game_id=game_id)
     play_another_round = True
 
     while play_another_round:
@@ -18,4 +19,3 @@ if __name__ == "__main__":
     computer_player = Player(computer_name, PlayerType.MACHINE, PlayerStrategy.RANDOM)
 
     play(human_player, computer_player)
-

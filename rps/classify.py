@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 import torch
 import torchvision.transforms as T
 from ultralytics import YOLO
@@ -51,13 +50,13 @@ model = YOLO(constants.model_path)
 #         _, preds = torch.max(outputs, 1)
 #         prediction = constants.PLAYER_CHOICES[preds[0]]
 
-#         cv2.putText(frame, f'Your choice: {prediction.name}', (10, 50), 
-#                     constants.font, 
-#                     constants.choice_font_scale, 
-#                     constants.choice_font_color, 
-#                     constants.choice_font_thickness, 
+#         cv2.putText(frame, f'Your choice: {prediction.name}', (10, 50),
+#                     constants.font,
+#                     constants.choice_font_scale,
+#                     constants.choice_font_color,
+#                     constants.choice_font_thickness,
 #                     constants.font_line_type)
-#         cv2.putText(frame, 'Press SPACE to select choice, q to quit', (10, height-10), 
+#         cv2.putText(frame, 'Press SPACE to select choice, q to quit', (10, height-10),
 #                     constants.font, 1, constants.choice_font_color, 2, constants.font_line_type)
 #         # Display the resulting frame
 #         cv2.namedWindow(constants.WINDOW_NAME, cv2.WINDOW_NORMAL)
@@ -85,7 +84,7 @@ model = YOLO(constants.model_path)
 def process_frame(video_frame: np.array) -> torch.tensor:
     height, width = video_frame.shape[:2]
     img = video_frame.copy()
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     transforms = T.Compose([
         T.ToTensor(),
@@ -102,12 +101,9 @@ def get_choice_from_video() -> tuple[np.array, str]:
     """Gets a human rock, paper, scissors choice from a video frame"""
     cap = cv2.VideoCapture(constants.VIDEO_SOURCE)
 
-    while(True):
+    while True:
         # Capture the video frame by frame
         _, frame = cap.read()
-
-        # Resize to appropriate dimensions
-        # frame = cv2.resize(frame, constants.IMAGE_SIZE)
 
         img = frame.copy()  # Copy so that we don't return something with text on it
         height, _ = frame.shape[:2]
@@ -115,21 +111,21 @@ def get_choice_from_video() -> tuple[np.array, str]:
 
         results = model(frame, imgsz=320)
         probs = results[0].probs.data.numpy()
-        print(probs)
+        # print(probs)
         pred_index = np.argmax(probs)
         prediction = constants.PLAYER_CHOICES[pred_index]
 
-        cv2.putText(frame, f'Your choice: {prediction.name}', (10, 50), 
-                    constants.font, 
-                    constants.choice_font_scale, 
-                    constants.choice_font_color, 
-                    constants.choice_font_thickness, 
+        cv2.putText(frame, f'Your choice: {prediction.name}', (10, 50),
+                    constants.font,
+                    constants.choice_font_scale,
+                    constants.choice_font_color,
+                    constants.choice_font_thickness,
                     constants.font_line_type)
-        cv2.putText(frame, 'Press SPACE to select choice, q to quit', (10, height-10), 
+        cv2.putText(frame, 'Press SPACE to select choice, q to quit', (10, height-10),
                     constants.font, 1, constants.choice_font_color, 2, constants.font_line_type)
         # Display the resulting frame
-        # cv2.namedWindow(constants.WINDOW_NAME, cv2.WINDOW_NORMAL)
-        # frame = cv2.resize(frame, constants.IMAGE_SIZE, interpolation=cv2.INTER_LINEAR)
+        cv2.namedWindow(constants.WINDOW_NAME, cv2.WINDOW_NORMAL)
+        frame = cv2.resize(frame, constants.IMAGE_SIZE, interpolation=cv2.INTER_LINEAR)
         cv2.imshow(constants.WINDOW_NAME, frame)
         # cv2.imshow(constants.WINDOW_NAME, img)
 
