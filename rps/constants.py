@@ -10,6 +10,7 @@ CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 # Image properties 
 WINDOW_NAME = "Rock, Paper, Scissors"
 IMAGE_SIZE = (int(1280*3), int(720*3))  # MacBook Air
+VIDEO_SOURCE = 0  # 0: built-in camera; 1: webcam
 
 # Drawing and text
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -64,7 +65,7 @@ QUIT = "QUIT"
 
 # Models
 models_dir = os.path.join(CURRENT_DIR, "..", "models")
-model_path = os.path.join(models_dir, "model_2021-12-27_2057.pth")
+model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
 
 # Database
 DATABASE_URI = os.path.join("sqlite:///rps.db")

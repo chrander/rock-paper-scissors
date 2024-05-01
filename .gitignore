@@ -130,6 +130,10 @@ dmypy.json
 
 # Models
 models/
+yolov8*
 
 # Databases
 *.db
+
+#ML runs
+runs/

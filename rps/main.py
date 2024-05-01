@@ -55,31 +55,31 @@ TOOLTIPS = [
     ("Round", "@round"),
     ("Winning Pct.", "@win_pct"),
 ]
-wp_plot = figure(height=600, width=1200, title="Human Winning Percentage Over Time",
+wp_plot = figure(height=600, width=2800, title="Human Winning Fraction Over Time",
               tools="xpan,xwheel_zoom,reset,hover", tooltips=TOOLTIPS,
               active_scroll="xwheel_zoom",
               y_range=[-0.05, 1.05], x_axis_label="Round", 
-              y_axis_label="Human Winning Percentage", toolbar_location="above")
+              y_axis_label="Human Win Fraction", toolbar_location="above")
 
-wp_plot.line(x="round", y="win_pct", source=win_pct_source, line_width=5, line_alpha=0.6)
+wp_plot.line(x="round", y="win_pct", source=win_pct_source, line_width=8, line_alpha=0.6)
 wp_plot.axis.axis_line_width = 3
 wp_plot.axis.axis_label_text_font_style = "bold"
-wp_plot.axis.axis_label_text_font_size = "24pt"
-wp_plot.axis.major_label_text_font_size = "20pt"
+wp_plot.axis.axis_label_text_font_size = "28pt"
+wp_plot.axis.major_label_text_font_size = "24pt"
 wp_plot.title.align = "center"
 wp_plot.title.text_color = "navy"
-wp_plot.title.text_font_size = "28pt"
+wp_plot.title.text_font_size = "44pt"
 
 figure_args = {
-    "height": 400,
-    "width": 400,
+    "height": 700,
+    "width": 700,
 }
 
 text_args = {
     "x": "x",
     "y": "y",
     "source": outcome_source,
-    "text_font_size": "164pt",
+    "text_font_size": "400pt",
     "text_align": "center",
     "text_baseline": "middle",
     "text_font_style": "bold"
@@ -105,7 +105,7 @@ for p in [games_plot, wins_plot, losses_plot, draws_plot]:
     p.toolbar_location = None
     p.title.align = "center"
     p.title.text_color = "navy"
-    p.title.text_font_size = "32pt"
+    p.title.text_font_size = "44pt"
 
 # Set up callbacks
 def update_data_on_game_id_change(attrname, old, new) -> None:
