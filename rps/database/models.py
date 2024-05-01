@@ -17,7 +17,8 @@ class Game(Base):
     __tablename__ = "games"
 
     game_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    created_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_time: Mapped[datetime] = mapped_column(DateTime(timezone=True),
+                                                   server_default=func.now())
     player1_name: Mapped[str] = mapped_column(String)
     player1_type: Mapped[str] = mapped_column(String)
     player1_strategy: Mapped[str] = mapped_column(String)
@@ -29,7 +30,8 @@ class Game(Base):
     game_stats: Mapped["GameStats"] = relationship(back_populates="game")
 
     def __repr__(self) -> str:
-        return f"Game(id={self.game_id!r}, player1_name={self.player1_name!r}, player2_name={self.player2_name!r})"
+        return (f"Game(id={self.game_id!r}, player1_name={self.player1_name!r}, "
+                f"player2_name={self.player2_name!r})")
 
 
 class Round(Base):
@@ -43,7 +45,7 @@ class Round(Base):
     game_id = mapped_column(ForeignKey("games.game_id"))
 
     game: Mapped[Game] = relationship(back_populates="rounds")
-    
+
     def __repr__(self) -> str:
         return f"Round(id={self.round_id!r}, game_id={self.game_id}, " \
                f"p1_choice={self.player1_choice!r}, p2_choice={self.player2_choice!r})"
@@ -53,7 +55,8 @@ class GameStats(Base):
     __tablename__ = "game_stats"
 
     game_stat_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True),
+                                                   server_default=func.now())
     win_count: Mapped[int] = mapped_column(Integer, default=0)
     loss_count: Mapped[int] = mapped_column(Integer, default=0)
     draw_count: Mapped[int] = mapped_column(Integer, default=0)

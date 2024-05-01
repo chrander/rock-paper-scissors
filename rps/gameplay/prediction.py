@@ -2,9 +2,7 @@ import numpy as np
 import pandas as pd
 
 from rps.constants import DATABASE_URI
-from rps.constants import Player, RoundOutcome
 from rps.database.client import DatabaseClient
-from rps.database.models import Game
 
 
 class Featurizer:

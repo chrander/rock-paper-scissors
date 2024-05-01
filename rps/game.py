@@ -27,10 +27,10 @@ class RPSRound:
         self.player2 = player2
         self.player1_choice = player1_choice
         self.player2_choice = player2_choice
-        self.outcome = self.determine_round_winner(player1_choice, player2_choice)
+        self.outcome = self.determine_round_outcome(player1_choice, player2_choice)
 
     @staticmethod
-    def determine_round_winner(choice1: PlayerChoice, choice2: PlayerChoice) -> RoundOutcome:
+    def determine_round_outcome(choice1: PlayerChoice, choice2: PlayerChoice) -> RoundOutcome:
         """Determines the result of one round from player 1's perspective
 
         Parameters
