@@ -5,7 +5,7 @@ import random
 import cv2
 import numpy as np
 
-from rps.classify import get_choice_from_video
+from rps.gameplay.classify import get_choice_from_video
 from rps import constants
 from rps.constants import Player, PlayerChoice, PlayerType, PlayerStrategy, RoundOutcome
 from rps.database.client import DatabaseClient

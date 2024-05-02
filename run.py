@@ -1,4 +1,4 @@
-from rps.game import RPSGame, Player, PlayerType, PlayerStrategy
+from rps.gameplay.game import RPSGame, Player, PlayerType, PlayerStrategy
 from rps.constants import game_id
 
 

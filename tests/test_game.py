@@ -1,4 +1,4 @@
-from rps import game
+from rps.gameplay import game
 
 
 def test_RPSGame():
