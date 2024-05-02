@@ -7,13 +7,12 @@ import cv2
 CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
 # Game properties
-game_id = 58
+game_id = None  # Set to None to start a new game
 
 # Image properties
 WINDOW_NAME = "Rock, Paper, Scissors"
-# IMAGE_SIZE = (int(1280*3), int(720*3))
 IMAGE_SIZE = (int(1920*2), int(1080*2))
-VIDEO_SOURCE = 0  # 0: built-in camera; 1: webcam
+VIDEO_SOURCE = 0  # may need to toggle this to get the webcam
 
 # Drawing and text
 font = cv2.FONT_HERSHEY_SIMPLEX

@@ -128,6 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# OS stuff
+.DS_Store
+
 # Models
 models/
 yolov8*
