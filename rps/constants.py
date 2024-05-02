@@ -7,7 +7,7 @@ import cv2
 CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
 # Game properties
-game_id = 7
+game_id = 58
 
 # Image properties
 WINDOW_NAME = "Rock, Paper, Scissors"
@@ -72,7 +72,7 @@ QUIT = "QUIT"
 # Models
 models_dir = os.path.join(CURRENT_DIR, "..", "models")
 # model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
-model_path = os.path.join(models_dir, "best.pt")
+model_path = os.path.join(models_dir, "yolov8n_original_data.pt")
 
 # Database
 DATABASE_URI = os.path.join("sqlite:///rps.db")

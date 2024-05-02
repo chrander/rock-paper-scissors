@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+import logging
 import random
 
 import numpy as np
@@ -7,6 +9,7 @@ from rps.constants import PlayerChoice, DATABASE_URI, PLAYER_CHOICES
 from rps.database.client import DatabaseClient
 
 
+logger = logging.getLogger(__name__)
 db_client = DatabaseClient(database_uri=DATABASE_URI)
 
 
@@ -29,12 +32,78 @@ def get_round_score(predict_choice: PlayerChoice, actual_choice: PlayerChoice) -
         return 0
 
 
-def score_model(model_score_history: pd.Series) -> float:
-    n = len(model_score_history)
-    numerator = np.sum(model_score_history * (n ** 2))
-    denominator = np.sum(n ** 2)
-    score = numerator / denominator
-    return score
+class RPSModel(ABC):
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.results_df = None
+        self.score = -100.0  # Set to something very small
+
+    @abstractmethod
+    def predict(self, round_history_df: pd.DataFrame) -> PlayerChoice:
+        pass
+
+    def update_results(
+            self, 
+            round_history_df: pd.DataFrame, 
+            n: int = 7
+        ) -> None:
+        results = {
+            "pred_choice": [],
+            "true_choice": []
+        }
+
+        for i in range(n):
+            current_hist_df = round_history_df.iloc[i+1:i+n+1]
+            pred_choice = self.predict(current_hist_df)
+            true_choice = PlayerChoice[round_history_df.iloc[i].player1_choice]
+
+            results["pred_choice"].append(pred_choice)
+            results["true_choice"].append(true_choice)
+
+        self.results_df = pd.DataFrame(results)
+        self.results_df["score"] = self.results_df.apply(
+            lambda row: get_round_score(row.pred_choice, row.true_choice), axis=1
+        )
+
+    def update_score(self) -> None:
+        round_scores = self.results_df.score.values
+        n = len(round_scores)
+        numerator = np.sum(round_scores * (n ** 2))
+        denominator = np.sum(n ** 2)
+        self.score = numerator / denominator
+
+
+class PreviousChoiceModel(RPSModel):
+    def __init__(self) -> None:
+        name = "Previous Choice"
+        super().__init__(name)
+
+    def predict(self, history_df: pd.DataFrame, n: int = 7) -> PlayerChoice:
+        previous_choice = PlayerChoice[history_df.iloc[0].player1_choice]
+        return beats(previous_choice)
+
+
+class MostFrequentChoiceModel(RPSModel):
+    def __init__(self) -> None:
+        name = "Most Frequent Choice"
+        super().__init__(name)
+
+    def predict(self, history_df: pd.DataFrame, n: int = 7) -> PlayerChoice:
+        choice_counts = history_df.player1_choice.value_counts()
+        most_frequent_choice = PlayerChoice[choice_counts.index[0]]
+        return beats(most_frequent_choice)
+
+
+class LeastFrequentChoiceModel(RPSModel):
+    def __init__(self) -> None:
+        name = "Least Frequent Choice"
+        super().__init__(name)
+
+    def predict(self, history_df: pd.DataFrame, n: int = 7) -> PlayerChoice:
+        choice_counts = history_df.player1_choice.value_counts()
+        least_frequent_choice = PlayerChoice[choice_counts.index[-1]]
+        return beats(least_frequent_choice)
 
 
 def get_round_history(game_id: int, n: int = 10) -> pd.DataFrame:
@@ -43,78 +112,38 @@ def get_round_history(game_id: int, n: int = 10) -> pd.DataFrame:
     return df
 
 
-def previous_choice_model(history_df: pd.DataFrame) -> PlayerChoice:
-    """Selects the choice that would beat the opponent's previous choice"""
-    # history_df should already be sorted in descending timestamp order, so take the
-    # first row as the previous choice
-    previous_choice = PlayerChoice[history_df.iloc[0].player1_choice]
-    return beats(previous_choice)
-
-
-def choice_frequency_model(history_df: pd.DataFrame) -> PlayerChoice:
-    """Selects the choices that beat the most frequent and least frequent choices"""
-    choice_counts = history_df.player1_choice.value_counts()
-    most_frequent_choice = PlayerChoice[choice_counts.index[0]]
-    least_frequent_choice = PlayerChoice[choice_counts.index[-1]]
-    return beats(most_frequent_choice), beats(least_frequent_choice)
-
-
-def xgb_model(history_df: pd.DataFrame) -> PlayerChoice:
-    pass
-
-
 def random_prediction() -> PlayerChoice:
     return random.choice(PLAYER_CHOICES)
 
 
-def get_model_predictions(history_df: pd.DataFrame, n: int = 7):
-    k = len(history_df)
-    if k < 1:
-        prev_choice_pred = random_prediction()
-        most_freq_choice_pred = random_prediction()
-        least_freq_choice_pred = random_prediction()
-    else:
-        prev_choice_pred = previous_choice_model(history_df)
-        most_freq_choice_pred, least_freq_choice_pred = choice_frequency_model(history_df.iloc[:n])
+def get_prediction(game_id: int, n: int = 7):
+    round_history_df = get_round_history(game_id, n=2*n)
 
-    model_preds = [
-        prev_choice_pred,
-        most_freq_choice_pred,
-        least_freq_choice_pred
+    models = [
+        PreviousChoiceModel(),
+        MostFrequentChoiceModel(),
+        LeastFrequentChoiceModel()
     ]
-    return model_preds
 
+    for model in models:
+        logger.debug(f"Updating {model.name}")
+        logger.debug(f"Type of model: {type(model)}")
+        model.update_results(round_history_df, n=n)
+        model.update_score()
+        logger.debug(f"{model.name} score is {model.score}")
 
-def get_model_history(game_id: int, n: int = 7):
-    history_df = get_round_history(game_id, n=2*n)
-    results = {
-        "previous_choice_pred": [],
-        "most_freq_choice_pred": [],
-        "least_freq_choice_pred": [],
-        "choice": []
-    }
+    # Compute model scores and select the model with the highest score
+    model_scores =  [m.score for m in models]
 
-    for i in range(n):
-        current_hist_df = history_df.iloc[i+1:i+n+1]
-        prev_choice_pred = previous_choice_model(current_hist_df)
-        most_freq_choice_pred, least_freq_choice_pred = choice_frequency_model(current_hist_df)
-        choice = PlayerChoice[history_df.iloc[i].player1_choice]
+    best_idx = np.argmax(model_scores)
+    best_model = models[best_idx]
+    logger.debug(f"Best model: {best_model.name} (index {best_idx})")
 
-        results["previous_choice_pred"].append(prev_choice_pred)
-        results["most_freq_choice_pred"].append(most_freq_choice_pred)
-        results["least_freq_choice_pred"].append(least_freq_choice_pred)
-        results["choice"].append(choice)
-
-    results_df = pd.DataFrame(results)
-    results_df["previous_choice_score"] = results_df.apply(
-        lambda row: get_round_score(row.previous_choice_pred, row.choice), axis=1)
-    results_df["most_freq_choice_score"] = results_df.apply(
-        lambda row: get_round_score(row.most_freq_choice_pred, row.choice), axis=1)
-    results_df["least_freq_choice_score"] = results_df.apply(
-        lambda row: get_round_score(row.least_freq_choice_pred, row.choice), axis=1)
-
-    return results_df
+    # Use prediction for the best prediction
+    prediction = best_model.predict(round_history_df, n=n)
+    return prediction
 
 
 if __name__ == "__main__":
-    print(get_model_history(7))
+    # print(get_model_history(7))
+    print(get_prediction(58))
