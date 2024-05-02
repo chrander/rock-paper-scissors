@@ -9,6 +9,15 @@ CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 # Game properties
 game_id = None  # Set to None to start a new game
 
+# Models
+models_dir = os.path.join(CURRENT_DIR, "..", "models")
+# model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
+# model_path = os.path.join(models_dir, "yolov8n_original_data.pt")
+model_path = os.path.join(models_dir, "yolov8n_combined.pt")
+
+# Database
+DATABASE_URI = os.path.join("sqlite:///rps.db")
+
 # Image properties
 WINDOW_NAME = "Rock, Paper, Scissors"
 IMAGE_SIZE = (int(1920*2), int(1080*2))
@@ -68,10 +77,3 @@ PLAYER_CHOICES = [PlayerChoice.PAPER, PlayerChoice.ROCK, PlayerChoice.SCISSORS]
 # String constants
 QUIT = "QUIT"
 
-# Models
-models_dir = os.path.join(CURRENT_DIR, "..", "models")
-# model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
-model_path = os.path.join(models_dir, "yolov8n_original_data.pt")
-
-# Database
-DATABASE_URI = os.path.join("sqlite:///rps.db")
