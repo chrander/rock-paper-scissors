@@ -76,4 +76,3 @@ PLAYER_CHOICES = [PlayerChoice.PAPER, PlayerChoice.ROCK, PlayerChoice.SCISSORS]
 
 # String constants
 QUIT = "QUIT"
-
