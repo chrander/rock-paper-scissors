@@ -47,7 +47,7 @@ class RPSModel(ABC):
 
     def update_results(self, round_history_df: pd.DataFrame) -> None:
 
-        # Require at least twice the number of minimum data points to 
+        # Require at least twice the number of minimum data points to
         # get a valid score for the model
         if len(round_history_df) < 2*self.min_datapoints:
             logger.debug(f"Round history has only {len(round_history_df)} points. "
@@ -106,11 +106,11 @@ class PreviousChoiceModel(RPSModel):
 
 
 class BeatsPreviousChoiceModel(RPSModel):
-   def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
         name = "Beats Previous Choice"
         super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
 
-   def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
+    def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
         if len(history_df) < self.min_datapoints:
             logger.info(f"Returning random prediction for {self.name}")
             return random_prediction()
@@ -122,11 +122,11 @@ class BeatsPreviousChoiceModel(RPSModel):
 
 
 class LosesToPreviousChoiceModel(RPSModel):
-   def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
         name = "Loses To Previous Choice"
         super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
 
-   def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
+    def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
         if len(history_df) < self.min_datapoints:
             logger.info(f"Returning random prediction for {self.name}")
             return random_prediction()
@@ -178,7 +178,6 @@ class RandomModel(RPSModel):
         return random_prediction()
 
 
-
 def get_round_history(game_id: int, n: int = 10) -> pd.DataFrame:
     sql = f"SELECT * FROM rounds WHERE game_id = {game_id} ORDER BY timestamp DESC LIMIT {n}"
     df = pd.read_sql(sql, con=db_client.engine)
@@ -209,7 +208,7 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
         logger.debug(f"{model.name} score is {model.score}")
 
     # Compute model scores and select the model with the highest score
-    model_scores =  [m.score for m in models]
+    model_scores = [m.score for m in models]
 
     best_idx = np.argmax(model_scores)
     best_model = models[best_idx]
