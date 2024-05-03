@@ -16,6 +16,6 @@ if __name__ == "__main__":
     computer_name = "Computer"
 
     human_player = Player(human_name, PlayerType.HUMAN, PlayerStrategy.HUMAN)
-    computer_player = Player(computer_name, PlayerType.MACHINE, PlayerStrategy.RANDOM)
+    computer_player = Player(computer_name, PlayerType.MACHINE, PlayerStrategy.LEARN)
 
     play(human_player, computer_player)

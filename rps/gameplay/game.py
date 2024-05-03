@@ -87,18 +87,20 @@ class RPSGame:
             img, player_choice = get_choice_from_video()
 
         elif player.type == PlayerType.MACHINE:
+            # No image output for the machine
+            img = None
+            
             if player.strategy == PlayerStrategy.RANDOM:
-                # Use a random strategy--no image output for machine, so
-                # use "None" as the image component of the choice
-                img = None
+                # Use a random strategy
                 player_choice = random.choice(constants.PLAYER_CHOICES)
 
-                model_choice = get_prediction(self.db_game.game_id)
-                logger.info(f"Model choice would be {model_choice}")
+            elif player.strategy == PlayerStrategy.LEARN:
+                # Use a "learned" strategy
+                player_choice = get_prediction(self.db_game.game_id)
 
             else:
-                # Use a learning strategy
-                raise NotImplementedError
+                raise ValueError(f"Unknown strategy: {player.strategy}")
+
         else:
             raise ValueError(f"Unknown player type: {player.type}")
 

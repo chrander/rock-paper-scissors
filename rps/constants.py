@@ -7,13 +7,13 @@ import cv2
 CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
 # Game properties
-game_id = None  # Set to None to start a new game
+game_id = 74  # Set to None to start a new game
 
 # Models
 models_dir = os.path.join(CURRENT_DIR, "..", "models")
 # model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
-# model_path = os.path.join(models_dir, "yolov8n_original_data.pt")
-model_path = os.path.join(models_dir, "yolov8n_combined.pt")
+model_path = os.path.join(models_dir, "yolov8n_original_data.pt")
+# model_path = os.path.join(models_dir, "yolov8n_combined.pt")
 
 # Database
 DATABASE_URI = os.path.join("sqlite:///rps.db")

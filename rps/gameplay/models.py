@@ -84,13 +84,14 @@ class RPSModel(ABC):
         else:
             round_scores = self.results_df.score.values
             n = len(round_scores)
-            numerator = np.sum(round_scores * (n ** 2))
-            denominator = np.sum(n ** 2)
+            index = np.arange(n)
+            numerator = np.sum(round_scores * (index ** 2))
+            denominator = np.sum(index ** 2)
             self.score = numerator / denominator
 
 
 class PreviousChoiceModel(RPSModel):
-    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 2) -> None:
+    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
         name = "Previous Choice"
         super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
 
@@ -101,7 +102,38 @@ class PreviousChoiceModel(RPSModel):
         else:
             previous_choice = PlayerChoice[history_df.iloc[0].player1_choice]
             prediction = beats(previous_choice)
-            logger.info(f"Returning prediction {prediction} for {self.name}")
+            return prediction
+
+
+class BeatsPreviousChoiceModel(RPSModel):
+   def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+        name = "Beats Previous Choice"
+        super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
+
+   def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
+        if len(history_df) < self.min_datapoints:
+            logger.info(f"Returning random prediction for {self.name}")
+            return random_prediction()
+        else:
+            previous_choice = PlayerChoice[history_df.iloc[0].player1_choice]
+            next_choice = beats(previous_choice)
+            prediction = beats(next_choice)
+            return prediction
+
+
+class LosesToPreviousChoiceModel(RPSModel):
+   def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+        name = "Loses To Previous Choice"
+        super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
+
+   def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
+        if len(history_df) < self.min_datapoints:
+            logger.info(f"Returning random prediction for {self.name}")
+            return random_prediction()
+        else:
+            previous_choice = PlayerChoice[history_df.iloc[0].player1_choice]
+            next_choice = loses_to(previous_choice)
+            prediction = beats(next_choice)
             return prediction
 
 
@@ -118,12 +150,11 @@ class MostFrequentChoiceModel(RPSModel):
             choice_counts = history_df.player1_choice.value_counts()
             most_frequent_choice = PlayerChoice[choice_counts.index[0]]
             prediction = beats(most_frequent_choice)
-            logger.info(f"Returning prediction {prediction} for {self.name}")
             return prediction
 
 
 class LeastFrequentChoiceModel(RPSModel):
-    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 10) -> None:
         name = "Least Frequent Choice"
         super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
 
@@ -135,17 +166,17 @@ class LeastFrequentChoiceModel(RPSModel):
             choice_counts = history_df.player1_choice.value_counts()
             least_frequent_choice = PlayerChoice[choice_counts.index[-1]]
             prediction = beats(least_frequent_choice)
-            logger.info(f"Returning prediction {prediction} for {self.name}")
             return prediction
 
 
 class RandomModel(RPSModel):
-    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 10) -> None:
         name = "Random"
         super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
 
     def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
         return random_prediction()
+
 
 
 def get_round_history(game_id: int, n: int = 10) -> pd.DataFrame:
@@ -158,14 +189,17 @@ def random_prediction() -> PlayerChoice:
     return random.choice(PLAYER_CHOICES)
 
 
-def get_prediction(game_id: int, n: int = 7):
+def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
     round_history_df = get_round_history(game_id, n=2*n)
 
+    # TODO: don't instantiate new models for each prediction cycle
     models = [
-        PreviousChoiceModel(),
-        MostFrequentChoiceModel(),
-        LeastFrequentChoiceModel(),
-        RandomModel()
+        PreviousChoiceModel(min_datapoints=1, max_datapoints=7),
+        BeatsPreviousChoiceModel(min_datapoints=1, max_datapoints=7),
+        LosesToPreviousChoiceModel(min_datapoints=1, max_datapoints=7),
+        MostFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
+        LeastFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
+        RandomModel(min_datapoints=1, max_datapoints=12)
     ]
 
     for model in models:
@@ -179,10 +213,10 @@ def get_prediction(game_id: int, n: int = 7):
 
     best_idx = np.argmax(model_scores)
     best_model = models[best_idx]
-    logger.debug(f"Best model: {best_model.name} (index {best_idx})")
+    prediction = best_model.predict(round_history_df)
+    logger.info(f"Best model: {best_model.name} (index {best_idx}) predicts {prediction}")
 
     # Use prediction for the best prediction
-    prediction = best_model.predict(round_history_df)
     return prediction
 
 
