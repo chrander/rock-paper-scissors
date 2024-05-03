@@ -7,7 +7,7 @@ import cv2
 CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
 # Game properties
-game_id = 58
+game_id = None
 
 # Image properties
 WINDOW_NAME = "Rock, Paper, Scissors"
@@ -24,7 +24,7 @@ choice_font_thickness = 3
 outcome_font_color_win = (0, 255, 0)
 outcome_font_color_lose = (0, 0, 255)
 outcome_font_color_draw = (255, 50, 50)
-outcome_font_scale = 4.5
+outcome_font_scale = 5
 outcome_font_thickness = 14
 
 

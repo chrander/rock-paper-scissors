@@ -5,9 +5,10 @@ import random
 import cv2
 import numpy as np
 
-from rps.gameplay.classify import get_choice_from_video
 from rps import constants
 from rps.constants import Player, PlayerChoice, PlayerType, PlayerStrategy, RoundOutcome
+from rps.gameplay.classify import get_choice_from_video
+from rps.gameplay.models import beats, get_prediction
 from rps.database.client import DatabaseClient
 from rps.database.models import Game, Round
 
@@ -49,16 +50,11 @@ class RPSRound:
             # Draw
             return RoundOutcome.DRAW
 
-        if (choice1 == PlayerChoice.PAPER) and (choice2 == PlayerChoice.ROCK) \
-                or (choice1 == PlayerChoice.SCISSORS) and (choice2 == PlayerChoice.PAPER) \
-                or (choice1 == PlayerChoice.ROCK) and (choice2 == PlayerChoice.SCISSORS):
-            # Choice 1 wins
+        elif choice1 == beats(choice2):
             return RoundOutcome.WIN
 
         else:
-            # Choice 2 wins (should be the only other valid options)
             return RoundOutcome.LOSS
-
 
 class RPSGame:
 
@@ -96,6 +92,9 @@ class RPSGame:
                 # use "None" as the image component of the choice
                 img = None
                 player_choice = random.choice(constants.PLAYER_CHOICES)
+
+                model_choice = get_prediction(self.db_game.game_id)
+                logger.info(f"Model choice would be {model_choice}")
 
             else:
                 # Use a learning strategy
