@@ -7,13 +7,21 @@ import cv2
 CURRENT_DIR = os.path.realpath(os.path.dirname(__file__))
 
 # Game properties
-game_id = None
+game_id = None  # Set to None to start a new game
+
+# Models
+models_dir = os.path.join(CURRENT_DIR, "..", "models")
+# model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
+# model_path = os.path.join(models_dir, "yolov8n_original_data.pt")
+model_path = os.path.join(models_dir, "yolov8n_combined.pt")
+
+# Database
+DATABASE_URI = os.path.join("sqlite:///rps.db")
 
 # Image properties
 WINDOW_NAME = "Rock, Paper, Scissors"
-# IMAGE_SIZE = (int(1280*3), int(720*3))
 IMAGE_SIZE = (int(1920*2), int(1080*2))
-VIDEO_SOURCE = 0  # 0: built-in camera; 1: webcam
+VIDEO_SOURCE = 0  # may need to toggle this to get the webcam
 
 # Drawing and text
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -68,11 +76,3 @@ PLAYER_CHOICES = [PlayerChoice.PAPER, PlayerChoice.ROCK, PlayerChoice.SCISSORS]
 
 # String constants
 QUIT = "QUIT"
-
-# Models
-models_dir = os.path.join(CURRENT_DIR, "..", "models")
-# model_path = os.path.join(models_dir, "yolov8n_tfdata.pt")
-model_path = os.path.join(models_dir, "yolov8n_original_data.pt")
-
-# Database
-DATABASE_URI = os.path.join("sqlite:///rps.db")
