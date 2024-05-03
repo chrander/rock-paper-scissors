@@ -56,6 +56,7 @@ class RPSRound:
         else:
             return RoundOutcome.LOSS
 
+
 class RPSGame:
 
     def __init__(self, player1: Player, player2: Player, game_id: int = None) -> None:

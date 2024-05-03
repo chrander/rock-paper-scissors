@@ -13,12 +13,22 @@ from rps.constants import DATABASE_URI
 
 logger = logging.getLogger(__name__)
 
-COLORS = {
+CHOICE_COLORS = {
     "PAPER": "#ece7f2",
     "ROCK": "#9ebcda",
-    "SCISSORS": "#8856a7",
+    "SCISSORS": "#8856a7"
+}
+
+P1_OUTCOME_COLORS = {
     "WIN": "green",
-    "LOSS": "firebrick"
+    "LOSS": "firebrick",
+    "DRAW": "blue"
+}
+
+P2_OUTCOME_COLORS = {
+    "WIN": "firebrick",
+    "LOSS": "green",
+    "DRAW": "blue"
 }
 
 
@@ -46,13 +56,11 @@ def get_data(game_id: int) -> pd.DataFrame:
                              "ORDER BY timestamp DESC LIMIT 10",
                              con=db_client.engine)
 
-    choices_df["p1_color"] = choices_df.p1.apply(lambda x: COLORS[x])
-    choices_df["p2_color"] = choices_df.p2.apply(lambda x: COLORS[x])
+    choices_df["p1_color"] = choices_df.p1.apply(lambda x: CHOICE_COLORS[x])
+    choices_df["p2_color"] = choices_df.p2.apply(lambda x: CHOICE_COLORS[x])
 
-    choices_df["p1_line_color"] = choices_df.outcome.apply(
-        lambda x: COLORS["WIN"] if x == "WIN" else COLORS["LOSS"])
-    choices_df["p2_line_color"] = choices_df.outcome.apply(
-        lambda x: COLORS["LOSS"] if x == "WIN" else COLORS["WIN"])
+    choices_df["p1_line_color"] = choices_df.outcome.apply(lambda x: P1_OUTCOME_COLORS[x])
+    choices_df["p2_line_color"] = choices_df.outcome.apply(lambda x: P2_OUTCOME_COLORS[x])
 
     choices_df = choices_df.sort_values("timestamp", ascending=True)
     choices_df["x"] = np.arange(len(choices_df))
@@ -80,11 +88,11 @@ TOOLTIPS = """
     <font face="Arial" size="6"><strong>Winning Pct.:</strong> @win_pct{0.000}</font>
 """
 
-wp_plot = figure(height=600, width=2200, title="Human Win Fraction Over Time",
+wp_plot = figure(height=550, width=2200, title="Human Win Fraction Over Time",
                  tools="xpan,xwheel_zoom,reset,hover", tooltips=TOOLTIPS,
                  active_scroll="xwheel_zoom",
                  y_range=[-0.05, 1.05], x_axis_label="Round",
-                 y_axis_label="Human Win Fraction", toolbar_location="above",
+                 y_axis_label="Win Fraction", toolbar_location="above",
                  margin=(20, 20, 20, 20))
 
 wp_plot.line(x="round", y="win_pct", source=win_pct_source, line_width=8, line_alpha=0.6)
@@ -95,20 +103,21 @@ wp_plot.axis.axis_label_text_font_size = "28pt"
 wp_plot.axis.major_label_text_font_size = "24pt"
 wp_plot.title.align = "center"
 wp_plot.title.text_color = "navy"
-wp_plot.title.text_font_size = "44pt"
+wp_plot.title.text_font_size = "28pt"
 
 # ---------------------------- #
 # Set up "scoreboard" plots
 figure_args = {
-    "height": 550,
+    "height": 350,
     "width": 550,
+    "margin": (10, 10, 10, 10)
 }
 
 text_args = {
     "x": "x",
     "y": "y",
     "source": outcome_source,
-    "text_font_size": "200pt",
+    "text_font_size": "170pt",
     "text_align": "center",
     "text_baseline": "middle",
     "text_font_style": "bold"
@@ -121,7 +130,7 @@ wins_plot = figure(title="Human Wins", **figure_args)
 wins_plot.text(text="win_count", text_color="green", **text_args)
 
 losses_plot = figure(title="Computer Wins", **figure_args)
-losses_plot.text(text="loss_count", text_color="red", **text_args)
+losses_plot.text(text="loss_count", text_color="firebrick", **text_args)
 
 draws_plot = figure(title="Draws", **figure_args)
 draws_plot.text(text="draw_count", text_color="blue", **text_args)
@@ -140,14 +149,14 @@ for p in [games_plot, wins_plot, losses_plot, draws_plot]:
 # Set up recent choices plot
 
 c1 = figure(height=200, width=2200, y_range=(-0.6, 0.6), title="Most Recent Human Choices",
-            margin=(20, 20, 20, 20))
+            margin=(10, 10, 10, 10))
 c1.rect(x="x", y="y", fill_color="p1_color", line_color="p1_line_color", source=choices_source,
         width=0.92, height=1, fill_alpha=0.6, line_width=7)
 c1.text(x="x", y="y", text="p1", source=choices_source, text_align="center",
         text_baseline="middle", text_font_size="22pt", text_font_style="bold")
 
 c2 = figure(height=200, width=2200, y_range=(-0.6, 0.6), title="Most Recent Computer Choices",
-            margin=(20, 20, 20, 20))
+            margin=(10, 10, 10, 10))
 c2.rect(x="x", y="y", fill_color="p2_color", line_color="p2_line_color", source=choices_source,
         width=0.92, height=1, fill_alpha=0.6, line_width=7)
 c2.text(x="x", y="y", text="p2", source=choices_source, text_align="center",
@@ -162,8 +171,7 @@ for p in [c1, c2]:
     p.outline_line_color = None
     p.title.align = "center"
     p.title.text_color = "navy"
-    p.title.text_font_size = "24pt"
-
+    p.title.text_font_size = "28pt"
 
 
 # Set up callbacks
@@ -189,7 +197,7 @@ game_id_input.on_change('value', update_data_on_game_id_change)
 inputs_col = column(game_id_input)
 win_pct_row = row(wp_plot)
 outcome_row = row(games_plot, wins_plot, losses_plot, draws_plot)
-plot_col = column(outcome_row, win_pct_row, c1, c2)
+plot_col = column(outcome_row, c1, c2, win_pct_row)
 final_row = row(inputs_col, plot_col)
 
 curdoc().title = "Rock, Paper, Scissors!"

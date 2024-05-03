@@ -83,8 +83,10 @@ class RPSModel(ABC):
             self.score = -1
         else:
             round_scores = self.results_df.score.values
+            print(round_scores)
             n = len(round_scores)
-            index = np.arange(n)
+            index = np.arange(1, n+1)[::-1]
+            print(index)
             numerator = np.sum(round_scores * (index ** 2))
             denominator = np.sum(index ** 2)
             self.score = numerator / denominator
@@ -193,9 +195,9 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
 
     # TODO: don't instantiate new models for each prediction cycle
     models = [
-        PreviousChoiceModel(min_datapoints=1, max_datapoints=7),
-        BeatsPreviousChoiceModel(min_datapoints=1, max_datapoints=7),
-        LosesToPreviousChoiceModel(min_datapoints=1, max_datapoints=7),
+        PreviousChoiceModel(min_datapoints=1, max_datapoints=5),
+        BeatsPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
+        LosesToPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
         MostFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
         LeastFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
         RandomModel(min_datapoints=1, max_datapoints=12)
