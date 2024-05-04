@@ -12,7 +12,7 @@ def play(player1: Player, player2: Player, game_id: int = None) -> None:
 if __name__ == "__main__":
     human_name = "Human"
     computer_name = "Computer"
-    game_id = 7
+    game_id = None
 
     human_player = Player(human_name, PlayerType.HUMAN, PlayerStrategy.HUMAN)
     computer_player = Player(computer_name, PlayerType.MACHINE, PlayerStrategy.LEARN)
