@@ -60,7 +60,6 @@ class RPSModel(ABC):
             "true_choice": []
         }
 
-        print()
         n = np.minimum(np.floor(len(round_history_df) / 2), self.max_datapoints)
         n = int(n)
         logger.debug(f"Computing model {self.name} history for {n} datapoints")
@@ -83,10 +82,10 @@ class RPSModel(ABC):
             self.score = -1
         else:
             round_scores = self.results_df.score.values
-            print(round_scores)
+            logger.debug(f"Round scores: {round_scores}")
             n = len(round_scores)
             index = np.arange(1, n+1)[::-1]
-            print(index)
+            logger.debug(f"Index: {index}")
             numerator = np.sum(round_scores * (index ** 2))
             denominator = np.sum(index ** 2)
             self.score = numerator / denominator
@@ -207,7 +206,7 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
         logger.debug(f"Updating {model.name}")
         model.update_results(round_history_df)
         model.update_score()
-        logger.debug(f"{model.name} score is {model.score}")
+        logger.debug(f"{model.name} score is {model.score:0.3f}")
 
     # Compute model scores and select the model with the highest score
     model_scores = [m.score for m in models]
@@ -219,8 +218,3 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
 
     # Use prediction for the best prediction
     return prediction
-
-
-if __name__ == "__main__":
-    # print(get_model_history(7))
-    print(get_prediction(58))
