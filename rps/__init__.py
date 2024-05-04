@@ -1,4 +1,8 @@
 import logging
 
-logger = logging.getLogger(__name__)
-logger = logging.basicConfig(level=logging.DEBUG)
+import rps
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(rps.__name__)
+logger.setLevel(logging.DEBUG)

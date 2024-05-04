@@ -53,3 +53,8 @@ build: ## Run all python code through Static Analysis
 test: ## Run all tests
 	$(CONDA_ACTIVATE) $(CONDA_ENV)
 	python -m pytest -v --cache-clear --cov-report term --cov-report html:coverage --cov $(SOURCE_DIR) $(TEST_DIR)/
+
+.PHONY: serve
+serve: ## Launch Bokeh server to run the app
+	$(CONDA_ACTIVATE) $(CONDA_ENV)
+	PYTHONPATH=`pwd` bokeh serve --show rps
