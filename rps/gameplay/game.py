@@ -90,7 +90,7 @@ class RPSGame:
         elif player.type == PlayerType.MACHINE:
             # No image output for the machine
             img = None
-            
+
             if player.strategy == PlayerStrategy.RANDOM:
                 # Use a random strategy
                 player_choice = random.choice(constants.PLAYER_CHOICES)
