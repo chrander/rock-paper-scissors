@@ -85,7 +85,6 @@ class RPSModel(ABC):
             logger.debug(f"Round scores: {round_scores}")
             n = len(round_scores)
             index = np.arange(1, n+1)[::-1]
-            logger.debug(f"Index: {index}")
             numerator = np.sum(round_scores * (index ** 2))
             denominator = np.sum(index ** 2)
             self.score = numerator / denominator
@@ -122,6 +121,22 @@ class BeatsPreviousChoiceModel(RPSModel):
             return prediction
 
 
+class LosesToPreviousChoiceModel(RPSModel):
+    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+        name = "Loses To Previous Choice"
+        super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
+
+    def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
+        if len(history_df) < self.min_datapoints:
+            logger.info(f"Returning random prediction for {self.name}")
+            return random_prediction()
+        else:
+            previous_choice = PlayerChoice[history_df.iloc[0].player1_choice]
+            next_choice = loses_to(previous_choice)
+            prediction = beats(next_choice)
+            return prediction
+
+
 class SecondPreviousChoiceModel(RPSModel):
     def __init__(self, min_datapoints: int = 2, max_datapoints: int = 7) -> None:
         name = "Second Previous Choice"
@@ -138,9 +153,9 @@ class SecondPreviousChoiceModel(RPSModel):
             return prediction
 
 
-class LosesToPreviousChoiceModel(RPSModel):
-    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
-        name = "Loses To Previous Choice"
+class BeatsSecondPreviousChoiceModel(RPSModel):
+    def __init__(self, min_datapoints: int = 2, max_datapoints: int = 7) -> None:
+        name = "Beats Second Previous Choice"
         super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
 
     def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
@@ -148,9 +163,10 @@ class LosesToPreviousChoiceModel(RPSModel):
             logger.info(f"Returning random prediction for {self.name}")
             return random_prediction()
         else:
-            previous_choice = PlayerChoice[history_df.iloc[0].player1_choice]
-            next_choice = loses_to(previous_choice)
-            prediction = beats(next_choice)
+            # Use index 1 to get the second previous choice
+            second_previous_choice = PlayerChoice[history_df.iloc[1].player1_choice]
+            beats_second_previous_choice = beats(second_previous_choice)
+            prediction = beats(beats_second_previous_choice)
             return prediction
 
 
@@ -212,8 +228,9 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
     models = [
         PreviousChoiceModel(min_datapoints=1, max_datapoints=5),
         BeatsPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
-        SecondPreviousChoiceModel(min_datapoints=2, max_datapoints=5),
         LosesToPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
+        SecondPreviousChoiceModel(min_datapoints=2, max_datapoints=5),
+        BeatsSecondPreviousChoiceModel(min_datapoints=2, max_datapoints=5),
         MostFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
         LeastFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
         RandomModel(min_datapoints=1, max_datapoints=12)
@@ -231,7 +248,7 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
     best_idx = np.argmax(model_scores)
     best_model = models[best_idx]
     prediction = best_model.predict(round_history_df)
-    logger.info(f"Best model: {best_model.name} (index {best_idx}) predicts {prediction}")
+    logger.info(f"Best model: {best_model.name}. Prediction: {prediction}")
 
     # Use prediction for the best prediction
     return prediction
