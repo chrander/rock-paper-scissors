@@ -121,7 +121,7 @@ class RPSGame:
 
         # If either player quits, return False
         if player1_choice == constants.QUIT or player2_choice == constants.QUIT:
-            logger.info("Player choice quit option. Quitting")
+            logger.info("Player chose quit option. Quitting")
             return False
 
         # Decide which image to draw on, if any
