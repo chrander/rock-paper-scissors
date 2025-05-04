@@ -122,6 +122,22 @@ class BeatsPreviousChoiceModel(RPSModel):
             return prediction
 
 
+class SecondPreviousChoiceModel(RPSModel):
+    def __init__(self, min_datapoints: int = 2, max_datapoints: int = 7) -> None:
+        name = "Second Previous Choice"
+        super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
+
+    def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
+        if len(history_df) < self.min_datapoints:
+            logger.info(f"Returning random prediction for {self.name}")
+            return random_prediction()
+        else:
+            # Use index 1 to get the second previous choice
+            second_previous_choice = PlayerChoice[history_df.iloc[1].player1_choice]
+            prediction = beats(second_previous_choice)
+            return prediction
+
+
 class LosesToPreviousChoiceModel(RPSModel):
     def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
         name = "Loses To Previous Choice"
@@ -196,6 +212,7 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
     models = [
         PreviousChoiceModel(min_datapoints=1, max_datapoints=5),
         BeatsPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
+        SecondPreviousChoiceModel(min_datapoints=2, max_datapoints=5),
         LosesToPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
         MostFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
         LeastFrequentChoiceModel(min_datapoints=1, max_datapoints=12),
