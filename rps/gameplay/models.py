@@ -202,6 +202,20 @@ class LeastFrequentChoiceModel(RPSModel):
             return prediction
 
 
+class PreviousOpponentChoiceModel(RPSModel):
+    def __init__(self, min_datapoints: int = 1, max_datapoints: int = 7) -> None:
+        name = "Previous Opponent Choice"
+        super().__init__(name, min_datapoints=min_datapoints, max_datapoints=max_datapoints)
+
+    def predict(self, history_df: pd.DataFrame) -> PlayerChoice:
+        if len(history_df) < self.min_datapoints:
+            logger.info(f"Returning random prediction for {self.name}")
+            return random_prediction()
+        else:
+            previous_choice = PlayerChoice[history_df.iloc[0].player2_choice]
+            prediction = beats(previous_choice)
+            return prediction
+
 class RandomModel(RPSModel):
     def __init__(self, min_datapoints: int = 1, max_datapoints: int = 10) -> None:
         name = "Random"
@@ -227,6 +241,7 @@ def get_prediction(game_id: int, n: int = 12) -> PlayerChoice:
     # TODO: don't instantiate new models for each prediction cycle
     models = [
         PreviousChoiceModel(min_datapoints=1, max_datapoints=5),
+        PreviousOpponentChoiceModel(min_datapoints=1, max_datapoints=5),
         BeatsPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
         LosesToPreviousChoiceModel(min_datapoints=1, max_datapoints=5),
         SecondPreviousChoiceModel(min_datapoints=2, max_datapoints=5),
