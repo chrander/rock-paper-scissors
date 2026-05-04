@@ -69,6 +69,7 @@ class RPSGame:
         self.db_client = DatabaseClient(constants.DATABASE_URI)
 
         if game_id is None:
+            logger.debug("No game ID provided, starting a new game")
             self.db_game = Game(
                 player1_name=player1.name,
                 player1_type=player1.type.name,
@@ -79,6 +80,7 @@ class RPSGame:
             )
             self.db_client.insert_game(self.db_game)
         else:
+            logger.debug(f"Game ID {game_id} provided, resuming game")
             self.db_game = self.db_client.select_game(game_id)
         logger.info(f"Game ID: {self.db_game.game_id}")
 
